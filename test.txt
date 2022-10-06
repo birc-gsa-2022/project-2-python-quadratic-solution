@@ -1,0 +1,98 @@
+============================= test session starts =============================
+platform win32 -- Python 3.10.6, pytest-7.1.3, pluggy-1.0.0 -- C:\Users\Gaia\AppData\Local\Programs\Python\Python310\python.exe
+cachedir: .pytest_cache
+rootdir: C:\Users\Gaia\github-classroom\birc-gsa-2022\project-2-python-quadratic-solution
+plugins: anyio-3.6.1
+collecting ... collected 2 items
+
+src/test_example.py::test_constructTreeNaiveChildren PASSED              [ 50%]
+src/test_example.py::test_constructTreeNaiveSplit FAILED                 [100%]
+
+================================== FAILURES ===================================
+________________________ test_constructTreeNaiveSplit _________________________
+
+    def test_constructTreeNaiveSplit():
+        res = st.constructTreeNaive("aa")
+        leafAA = Node(None, (2,3), 0)
+        leafA = Node(None, (3,3), 1)
+        leafSen = Node(None, (3,3), 2)
+        nodeA = Node({"a": leafAA, "$" : leafA}, (1,1), 0)
+        root = Node({"a" : nodeA, "$": leafSen}, (0,0), 0)
+    
+        leafAA.parent = leafA.parent = nodeA
+        nodeA.parent = root
+        root.parent = root
+    
+>       assert res == root, "Not same tree for aa"
+E       AssertionError: Not same tree for aa
+E       assert Node(children={'$': Node(children=None,\n                         stringRange=(3, 3),\n                         label=2,\n                         parent=...),\n               'a': Node(children=None,\n                         stringRange=(1, 3),\n                         label=0,\n                         parent=...)},\n     stringRange=(0, 0),\n     label=0,\n     parent=...) == Node(children={'$': Node(children=None,\n                         stringRange=(3, 3),\n                         label=2,\n                         parent=None),\n               'a': Node(children={'$': Node(children=None,\n                                             stringRange=(3, 3),\n                                             label=1,\n                                             parent=...),\n                                   'a': Node(children=None,\n                                             stringRange=(2, 3),\n                                             label=0,\n                                             parent=...)},\n                         stringRange=(1, 1),\n                         label=0,\n                         parent=...)},\n     stringRange=(0, 0),\n     label=0,\n     parent=...)
+E         
+E         Matching attributes:
+E         ['stringRange', 'label']
+E         Differing attributes:
+E         ['children']
+E         
+E         Drill down into differing attribute children:
+E           children: {'a': Node(children=None, stringRange=(1, 3), label=0, parent=Node(children={...}, stringRange=(0, 0), label=0, parent=...)), '$': Node(children=None, stringRange=(3, 3), label=2, parent=Node(children={...}, stringRange=(0, 0), label=0, parent=...))} != {'a': Node(children={'a': Node(children=None, stringRange=(2, 3), label=0, parent=...), '$': Node(children=None, stringRange=(3, 3), label=1, parent=...)}, stringRange=(1, 1), label=0, parent=Node(children={...}, stringRange=(0, 0), label=0, parent=...)), '$': Node(children=None, stringRange=(3, 3), label=2, parent=None)}
+E           Common items:
+E           {'$': Node(children=None,
+E                      stringRange=(3, 3),
+E                      label=2,
+E                      parent=Node(children={'$': <Recursion on Node with id=2202029520928>,
+E                                            'a': Node(children=None,
+E                                                      stringRange=(1, 3),
+E                                                      label=0,
+E                                                      parent=...)},
+E                                  stringRange=(0, 0),
+E                                  label=0,
+E                                  parent=...))}
+E           Differing items:
+E           {'a': Node(children=None, stringRange=(1, 3), label=0, parent=Node(children={'a': ..., '$': Node(children=None, stringRange=(3, 3), label=2, parent=...)}, stringRange=(0, 0), label=0, parent=...))} != {'a': Node(children={'a': Node(children=None, stringRange=(2, 3), label=0, parent=...), '$': Node(children=None, strin...': ..., '$': Node(children=None, stringRange=(3, 3), label=2, parent=None)}, stringRange=(0, 0), label=0, parent=...))}
+E           Full diff:
+E             {
+E           -  '$': Node(children=None, stringRange=(3, 3), label=2, parent=None),
+E           -  'a': Node(children={'$': Node(children=None,
+E           +  '$': Node(children=None,
+E           +            stringRange=(3,
+E           +                         3),
+E           +            label=2,
+E           +            parent=Node(children=...,
+E           -                                stringRange=(3,
+E           ? --------                                    ^
+E           +                        stringRange=(0,
+E           ?                                     ^
+E           -                                             3),
+E           ?                                     ^^^^^^^^^
+E           +                                     0),
+E           ?                                     ^
+E           -                                label=1,
+E           ? --------                             ^
+E           +                        label=0,
+E           ?                              ^
+E           -                                parent=...),
+E           ? --------
+E           +                        parent=...)),
+E           ?                                   +
+E           +  'a': Node(children=None,
+E           -                      'a': Node(children=None,
+E           -                                stringRange=(2,
+E           -                                             3),
+E           -                                label=0,
+E           -                                parent=...)},
+E                        stringRange=(1,
+E           -                         1),
+E           ?                         ^
+E           +                         3),
+E           ?                         ^
+E                        label=0,
+E                        parent=Node(children=...,
+E                                    stringRange=(0,
+E                                                 0),
+E                                    label=0,
+E                                    parent=...)),
+E             }
+
+src\test_example.py:46: AssertionError
+=========================== short test summary info ===========================
+FAILED src/test_example.py::test_constructTreeNaiveSplit - AssertionError: No...
+========================= 1 failed, 1 passed in 0.12s =========================

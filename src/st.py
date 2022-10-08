@@ -1,4 +1,5 @@
 import argparse
+from re import T
 from tree import Node
 
 
@@ -13,48 +14,113 @@ def main():
 
 
 
-# Index does not work
-# Don't mind all the broken code 
-def constructTreeNaive(x: str):
+def isInnerNode(node: Node):
+    return node.children is not None
+
+def constructTreeNaive(x: str, verbose=False):
     x += "$"
     n = len(x)
+    if verbose:
+        print("x:", x)
 
     firstLeaf = Node(None, (1, n), 0)
-    root = Node({x[0] : firstLeaf}, (0,0), 0)
+    root = Node({x[0] : firstLeaf}, (0,0), None)
     root.parent = root
     firstLeaf.parent = root
 
-    for i in range(1, n):
+    for suffixStart in range(1, n):
         node = root
-        char = x[i]
-        if char in node.children:
-            node = node.children[char]
-            start, end = node.stringRange
-            for j in range(min(end-start+1, n-i-1)):
-                print("j", j)
-                print("j+start", j+start)
-                print("j+i", j+i)
-                stringPos = j+i+1
-                treePos = j+start
-                if x[treePos] != x[stringPos]: #TODO find which to use for mismatch
-                    splitNode = Node(None, stringRange=(start, stringPos), label=node.label, parent=node.parent)
-                    newChild = Node(None, stringRange=(stringPos, n), label=i, parent=splitNode)
-                    splitNode.children = {x[treePos]: node, x[stringPos]: newChild}
-                    node.stringRange = (stringPos, end)
-                    node.parent.children[char] = splitNode
-                    #print("splitnode", splitNode)
-                    print("================================================")
-        else:
-            newChild = Node(None, (i+1, n), i, node)
-            node.children[char] = newChild
+        suffixIndex = suffixStart
+        char = x[suffixIndex]
 
+        while True:
+            if verbose:
+                print("Current root:\n", root.prettyString(), "\n")
+                print("Current subtree:\n", node.prettyString())
+                print("suffixIndex:", suffixIndex)
+            edgestart, edgeend = node.stringRange
+                
+            for i in range(min(edgeend-edgestart, n-suffixIndex+1)):
+                if verbose:
+                    print("i", i)
+                if x[suffixIndex] != x[edgestart+i]:
+                    if verbose:
+                        print("Mismatch")
+                    # Split node 
+                    newLeaf = Node(None, (suffixIndex+1, n), suffixStart)
+                    splitNode = Node({x[suffixIndex] : newLeaf, x[edgestart+i] : node}, (edgestart,edgestart+i), None, node.parent)
+                    newLeaf.parent = splitNode             
+                    node.stringRange = (edgestart+i+1, edgeend)
+                    node.parent.children[char] = splitNode
+                    node.parent = splitNode
+                    break
+                suffixIndex += 1 
+            else: #Did not mismatch
+                if suffixIndex == n:
+                    if verbose:
+                        print("Got to n-1")
+                    # insert leaf with $       
+                    newLeaf = Node(None, (n, n), suffixStart)
+                    if isInnerNode(node):
+                        newLeaf.parent = node
+                        node.children["$"] = newLeaf
+                    else: 
+                        splitNode = Node({"$" : newLeaf, x[edgestart] : node}, (suffixIndex, suffixIndex), None, node.parent)
+                        node.stringRange = (edgestart-1, edgeend)
+                        node.parent = splitNode
+                    break
+
+                char = x[suffixIndex]
+                if isInnerNode(node):
+                    if verbose:
+                        print("Inner node")
+                    if char in node.children:
+                        if verbose:
+                            print("Follow child")
+                        suffixIndex += 1
+                        node = node.children[char]
+                    else: #Add new leaf to inner node
+                        newLeaf = Node(None, (suffixIndex+1, n), suffixStart, node)
+                        node.children[char] = newLeaf
+                        break
+                else: # split leaf 
+                    if verbose:
+                        print("Is leaf")
+
+                    raise NotImplementedError 
+                    break
+                continue
+            break
+    if verbose:
+        print("Returning tree:\n", root.prettyString(), "\n")
     return root
         
-ct = constructTreeNaive("aa")
-print("lab", ct.label)
-print(ct)
-print("==========================")
-print(ct.children["a"].stringRange)
+
+
+    # for i in range(1, n):
+    #     node = root
+    #     char = x[i]
+    #     if char in node.children:
+    #         node = node.children[char]
+    #         start, end = node.stringRange
+    #         for j in range(min(end-start+1, n-i-1)):
+    #             print("j", j)
+    #             print("j+start", j+start)
+    #             print("j+i", j+i)
+    #             stringPos = j+i+1
+    #             treePos = j+start
+    #             if x[treePos] != x[stringPos]: #TODO find which to use for mismatch
+    #                 splitNode = Node(None, stringRange=(start, stringPos), label=node.label, parent=node.parent)
+    #                 newChild = Node(None, stringRange=(stringPos, n), label=i, parent=splitNode)
+    #                 splitNode.children = {x[treePos]: node, x[stringPos]: newChild}
+    #                 node.stringRange = (stringPos, end)
+    #                 node.parent.children[char] = splitNode
+    #                 #print("splitnode", splitNode)
+    #                 print("================================================")
+    #     else:
+    #         newChild = Node(None, (i+1, n), i, node)
+    #         node.children[char] = newChild
+
 
 # def constructTreeNaive(x: str):
 #     x += "$"

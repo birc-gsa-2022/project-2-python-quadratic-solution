@@ -44,3 +44,25 @@ def test_constructTreeNaiveSplit():
     root.parent = root
 
     assert res == root, "Not same tree for aa"
+
+def leafNotExists(y: str, tree: Node) -> bool:
+    node = tree.children[y[0]]
+    i = 1
+    while True:
+        #TODO make this
+        break
+    return False
+
+def isValidTree(x: str, tree: Node) -> bool:
+    x += "$"
+    n = len(x)
+    if tree.children is None:
+        return False
+    if not "$" in tree.children:
+        return False
+    if tree.children["$"].label != n:
+        return False
+    for i in range(n):
+        if leafNotExists(x[i:], tree):
+            return False
+    return True

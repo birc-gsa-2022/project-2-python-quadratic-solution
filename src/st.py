@@ -1,5 +1,4 @@
 import argparse
-from re import T
 from tree import Node
 
 
@@ -86,9 +85,7 @@ def constructTreeNaive(x: str, verbose=False):
                 else: # split leaf 
                     if verbose:
                         print("Is leaf")
-
-                    raise NotImplementedError 
-                    break
+                    raise ValueError 
                 continue
             break
     if verbose:

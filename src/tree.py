@@ -13,7 +13,7 @@ class Node:
 
     def prettyString(self, level=0):
         selfString = self.getRangeAndLabelString()
-        if self.isInnerNode:
+        if self.isInnerNode():
             kids = self.childrenOrLabel
             for child in kids:
                 selfString += "\n"

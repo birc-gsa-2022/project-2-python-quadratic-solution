@@ -7,37 +7,37 @@ import random as r
 
 def test_constructTreeNaiveChildren():
     res = st.constructTreeNaive("")
-    leafSen = Node(None, (1,1), 0)
-    root = Node({"$" : leafSen}, (0,0), None)
+    leafSen = Node((1,1), 0)
+    root = Node((0,0), {"$" : leafSen})
     leafSen.parent = root
     root.parent = root
     assert res == root, "Not same tree for empty string"
     
     res = st.constructTreeNaive("a")
-    leafA = Node(None, (1,2), 0)
-    leafSen = Node(None, (2,2), 1)
-    expT = Node({"a" : leafA, "$": leafSen}, (0,0), None)
+    leafA = Node((1,2), 0)
+    leafSen = Node((2,2), 1)
+    expT = Node((0,0), {"a" : leafA, "$": leafSen})
     leafA.parent = expT
     leafSen.parent = expT
     expT.parent = expT
     assert res == expT, "Not same tree for a"
 
     res = st.constructTreeNaive("ab")
-    leafAB = Node(None, (1,3), 0) 
-    leafB = Node(None, (2,3), 1) 
-    leafSen = Node(None, (3,3), 2) 
+    leafAB = Node((1,3), 0) 
+    leafB = Node((2,3), 1) 
+    leafSen = Node((3,3), 2) 
     leaves = {"a" : leafAB, "b" : leafB, "$" : leafSen}
-    expT = Node(leaves, (0,0), None)
+    expT = Node((0,0), leaves)
     assert res == expT, "Not same tree for ab"
 
 
 def test_constructTreeNaiveSplit():
     res = st.constructTreeNaive("aa")
-    leafAA = Node(None, (2,3), 0) 
-    leafA = Node(None, (3,3), 1) 
-    leafSen = Node(None, (3,3), 2) 
-    nodeA = Node({"a": leafAA, "$" : leafA}, (1,1), None)
-    root = Node({"a" : nodeA, "$": leafSen}, (0,0), None)
+    leafAA = Node((2,3), 0) 
+    leafA = Node((3,3), 1) 
+    leafSen = Node((3,3), 2) 
+    nodeA = Node((1,1), {"a": leafAA, "$" : leafA})
+    root = Node((0,0), {"a" : nodeA, "$": leafSen})
 
     leafAA.parent = leafA.parent = nodeA
     nodeA.parent = root
@@ -47,24 +47,24 @@ def test_constructTreeNaiveSplit():
 
 
 def leafExists(y: str, tree: Node, label: int, x: str) -> bool:
-    node = tree.children[y[0]]
+    node = tree.childrenOrLabel[y[0]]
     i = 1
     while node.isInnerNode():
         startEdge, endEdge = node.stringRange
         assert y[i:i+endEdge-startEdge] == x[startEdge:endEdge], f"{y[i:i+endEdge-startEdge]} != {x[startEdge:endEdge]}"
         i += endEdge-startEdge
-        node = node.children[y[i]]
+        node = node.childrenOrLabel[y[i]]
         i += 1 
     startEdge, endEdge = node.stringRange
     assert y[i:i+endEdge-startEdge] == x[startEdge:endEdge], f"{y[i:i+endEdge-startEdge]} != {x[startEdge:endEdge]}"
-    assert node.label == label, f"Got label {node.label}, not {label}"
+    assert node.childrenOrLabel == label, f"Got label {node.childrenOrLabel}, not {label}"
 
 def isValidTree(x: str, tree: Node) -> bool:
     x += "$"
     n = len(x)
-    assert tree.children is not None, f"Tree is none for x={x}"
-    assert "$" in tree.children, f"$ not leaf in tree for x={x}"
-    assert tree.children["$"].label == n-1, f"$ have label {tree.children['$'].label}, not {n-1} for x={x}"
+    assert tree.isInnerNode(), f"Tree leaf x={x}"
+    assert "$" in tree.childrenOrLabel, f"$ not leaf in tree for x={x}"
+    assert tree.childrenOrLabel["$"].childrenOrLabel == n-1, f"$ have label {tree.childrenOrLabel['$'].childrenOrLabel}, not {n-1} for x={x}"
     for i in range(n):
         leafExists(x[i:], tree, i, x)
     return True

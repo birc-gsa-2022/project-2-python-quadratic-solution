@@ -24,8 +24,8 @@ def constructTreeNaive(x: str, verbose=False):
     if verbose:
         print("x:", x)
 
-    firstLeaf = Node(None, (1, n), 0)
-    root = Node({x[0] : firstLeaf}, (0,0), None)
+    firstLeaf = Node((1, n), 0)
+    root = Node((0,0), {x[0] : firstLeaf})
     root.parent = root
     firstLeaf.parent = root
 
@@ -48,11 +48,11 @@ def constructTreeNaive(x: str, verbose=False):
                     if verbose:
                         print("Mismatch")
                     # Split node 
-                    newLeaf = Node(None, (suffixIndex+1, n), suffixStart)
-                    splitNode = Node({x[suffixIndex] : newLeaf, x[edgestart+i] : node}, (edgestart,edgestart+i), None, node.parent)
+                    newLeaf = Node((suffixIndex+1, n), suffixStart)
+                    splitNode = Node((edgestart,edgestart+i), {x[suffixIndex] : newLeaf, x[edgestart+i] : node}, node.parent)
                     newLeaf.parent = splitNode             
                     node.stringRange = (edgestart+i+1, edgeend)
-                    node.parent.children[char] = splitNode
+                    node.parent.childrenOrLabel[char] = splitNode
                     node.parent = splitNode
                     break
                 suffixIndex += 1 
@@ -61,12 +61,12 @@ def constructTreeNaive(x: str, verbose=False):
                     if verbose:
                         print("Got to n-1")
                     # insert leaf with $       
-                    newLeaf = Node(None, (n, n), suffixStart)
+                    newLeaf = Node((n, n), suffixStart)
                     if node.isInnerNode():
                         newLeaf.parent = node
-                        node.children["$"] = newLeaf
+                        node.childrenOrLabel["$"] = newLeaf
                     else: 
-                        splitNode = Node({"$" : newLeaf, x[edgestart] : node}, (suffixIndex, suffixIndex), None, node.parent)
+                        splitNode = Node((suffixIndex, suffixIndex), {"$" : newLeaf, x[edgestart] : node}, node.parent)
                         node.stringRange = (edgestart-1, edgeend)
                         node.parent = splitNode
                     break
@@ -75,14 +75,14 @@ def constructTreeNaive(x: str, verbose=False):
                 if node.isInnerNode():
                     if verbose:
                         print("Inner node")
-                    if char in node.children:
+                    if char in node.childrenOrLabel:
                         if verbose:
                             print("Follow child")
                         suffixIndex += 1
-                        node = node.children[char]
+                        node = node.childrenOrLabel[char]
                     else: #Add new leaf to inner node
-                        newLeaf = Node(None, (suffixIndex+1, n), suffixStart, node)
-                        node.children[char] = newLeaf
+                        newLeaf = Node((suffixIndex+1, n), suffixStart, node)
+                        node.childrenOrLabel[char] = newLeaf
                         break
                 else: # split leaf 
                     if verbose:
@@ -111,9 +111,9 @@ def searchTree(tree: Node, p: str, x: str):
             return
         if node.isLeaf():
             return 
-        if not p[i] in node.children:
+        if not p[i] in node.childrenOrLabel:
             return
-        node = node.children[p[i]]
+        node = node.childrenOrLabel[p[i]]
         i += 1 
         
         edgeStart, edgeEnd = node.stringRange
@@ -132,10 +132,10 @@ def findLeaves(t: Node | None):
     
     while stack:
         node = stack.pop()
-        if node.label is not None:
-            yield node.label
+        if node.isLeaf():
+            yield node.childrenOrLabel
         else:
-            for c in node.children.values():
+            for c in node.childrenOrLabel.values():
                 stack.append(c)
 
 if __name__ == '__main__':

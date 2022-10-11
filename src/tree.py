@@ -8,6 +8,7 @@ class Node:
     stringRange: tuple[int, int] #Including first, excluding last
     label: int | None = None
     parent: 'Node | None' = field(default=None, compare=False) #Avoid recursive compareson. Not comparing parent is only a problem in special cases that should never happen
+    # childrenOrLabel = dict[str, 'Node'] | int #Combined children and label 
 
     def getRangeAndLabelString(self):
         return f"{self.stringRange} {self.label if self.label is not None else ''}"
@@ -20,6 +21,12 @@ class Node:
                 selfString += "\n"
                 selfString += "\t"*level + str(child) + " \u2192\t" + kids[child].prettyString(level+1)
         return selfString
+
+    def isInnerNode(self):
+        return self.children is not None
+    
+    def isLeaf(self):
+        return self.children is None
     
 
 

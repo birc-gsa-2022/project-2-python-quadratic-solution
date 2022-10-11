@@ -18,12 +18,6 @@ def main():
                 print(name, fastaName, i+1, f'{len(seq)}M', seq, sep="\t")
 
 
-def isInnerNode(node: Node):
-    return node.children is not None
-
-def isLeaf(node: Node):
-    return node.children is None
-
 def constructTreeNaive(x: str, verbose=False):
     x += "$"
     n = len(x)
@@ -68,7 +62,7 @@ def constructTreeNaive(x: str, verbose=False):
                         print("Got to n-1")
                     # insert leaf with $       
                     newLeaf = Node(None, (n, n), suffixStart)
-                    if isInnerNode(node):
+                    if node.isInnerNode():
                         newLeaf.parent = node
                         node.children["$"] = newLeaf
                     else: 
@@ -78,7 +72,7 @@ def constructTreeNaive(x: str, verbose=False):
                     break
 
                 char = x[suffixIndex]
-                if isInnerNode(node):
+                if node.isInnerNode():
                     if verbose:
                         print("Inner node")
                     if char in node.children:
@@ -115,7 +109,7 @@ def searchTree(tree: Node, p: str, x: str):
         if i == m:
             yield from findLeaves(node)
             return
-        if isLeaf(node):
+        if node.isLeaf():
             return 
         if not p[i] in node.children:
             return

@@ -7,12 +7,16 @@ import lin
 
 def test_search():
     res = list(st.search("a", "a"))
+    resNaive = list(st.searchNaive("a", "a"))
     assert res == [0], "Not correct for x=a and p=a"
+    assert resNaive == [0], "Not correct for x=a and p=a"
 
     res = list(st.search("aaaaaa", "a"))
     res.sort()
+    resNaive = list(st.searchNaive("aaaaaa", "a"))
+    resNaive.sort()
     assert res == [0,1,2,3,4,5], "Not correct for x=aaaaaa and p=a"
-
+    assert resNaive == [0,1,2,3,4,5], "Not correct for x=aaaaaa and p=a"
 
 genAlphabet = "acgt"
 
@@ -35,19 +39,19 @@ def compare_res(x, p, *algorithms):
 def test_defined():
     x = ""
     p = ""
-    compare_res(x, p, st.search, lin.kmp2)
+    compare_res(x, p, st.search, st.searchNaive, lin.kmp2)
 
     x = "mississippi"
     p = "ssi" 
-    compare_res(x, p, st.search, lin.kmp2)
+    compare_res(x, p, st.search, st.searchNaive, lin.kmp2)
 
     x = "aaaaa"
     p = "aa"
-    compare_res(x, p, st.search, lin.kmp2)
+    compare_res(x, p, st.search, st.searchNaive, lin.kmp2)
 
     x = "gtccccacatcct"
     p = "ccc"
-    compare_res(x, p, st.search, lin.kmp2)
+    compare_res(x, p, st.search, st.searchNaive, lin.kmp2)
 
 
 def test_random_same():
@@ -56,8 +60,7 @@ def test_random_same():
         x= "".join(r.choices(genAlphabet, k=i))
         for j in range(50, i+2):
             pat = "".join(r.choices(genAlphabet, k=j))
-            compare_res(x, pat, st.search, lin.kmp2)
-
+            compare_res(x, pat, st.search, st.searchNaive, lin.kmp2)
 
 def test_search():
     x = ["aaaaa", "mississippi","", "aaabc","abc","a b c", "abababbababa", "Genome", "abxabxabx", "abxabdabx", "bcagjkdasbca"]
@@ -65,6 +68,9 @@ def test_search():
     expected = [[0,1,2,3],[1,4],[],[3],[],[2],[1,3,6,8,10], [], [],[0,6],[2,7,11]]
 
     for i in range(len(x)):
-        res = list(st.search(x[i],p[i]))
-        res.sort()
-        assert res == expected[i]
+        resMc = list(st.search(x[i],p[i]))
+        resMc.sort()
+        resNaive = list(st.searchNaive(x[i],p[i]))
+        resNaive.sort()
+        assert resMc == expected[i]
+        assert resMc == resNaive

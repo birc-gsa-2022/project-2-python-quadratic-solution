@@ -198,6 +198,12 @@ def search(x, p):
     t = constructTreeMcCreight(x)
     yield from searchTree(t, p, x+"$")
 
+def searchNaive(x, p):
+    if not x or not p:
+        return 
+    t = constructTreeNaive(x)
+    yield from searchTree(t, p, x+"$")
+
 def searchTree(tree: Node, p: str, x: str):
     node = tree
     # find pattern node

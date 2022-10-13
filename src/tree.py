@@ -42,5 +42,3 @@ class linkedNode(Node):
                 self.childrenOrLabel[c].asssertEqualToNode(n.childrenOrLabel[c])
         else:
             assert self.childrenOrLabel == n.childrenOrLabel, "Not same label"
-
-

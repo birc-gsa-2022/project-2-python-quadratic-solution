@@ -32,3 +32,4 @@ class Clock:
         t, res = self.getAlgorithmTimeAndResult(algorithm, *args)
         total += t
         return total/float(iterations), res 
+

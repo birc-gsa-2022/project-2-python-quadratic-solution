@@ -214,7 +214,43 @@ def timeBuildNaiveAndMcCreightSameChar(name, maxSeqLen, minSegLen, segLenStep, n
         return trees, list(range(minSegLen, maxSeqLen, segLenStep))
 
 
+def timeSearchVarMExists(name, maxM, minM, mStep, seqLens, alphabet, numAvgIterations):
+    n1, n2, n3 = seqLens
+    seq1 = "".join(r.choices(alphabet, k=n1))
+    seq2 = "".join(r.choices(alphabet, k=n2))
+    seq3 = "".join(r.choices(alphabet, k=n3))
+    t1 = st.constructTreeMcCreight(seq1)
+    t2 = st.constructTreeMcCreight(seq2)
+    t3 = st.constructTreeMcCreight(seq3)
+
+    data = {"m": list(range(minM, maxM, mStep))}
+    s1Times = []
+    s2Times = []
+    s3Times = []
+    
+    for m in range(minM, maxM, mStep):
+        print("m is now:", m)
+        index = r.randint(0, n1-m)
+        pat = seq1[index, index+m]
+        s1Time = timer.getTime(st.searchTree, t1, pat, seq1)
+        index = r.randint(0, n1-m)
+        pat = seq1[index, index+m]
+        s2Time = timer.getTime(st.searchTree, t2, pat, seq2)
+        index = r.randint(0, n1-m)
+        pat = seq1[index, index+m]
+        s3Time = timer.getTime(st.searchTree, t3, pat, seq3)
+        s1Times.append(s1Time)
+        s2Times.append(s2Time)
+        s3Times.append(s3Time)
+    
+    data[f"n={n1}"] = s1Times
+    data[f"n={n2}"] = s2Times
+    data[f"n={n3}"] = s3Times
+
+    dataframe = pd.DataFrame(data)
+    dataframe.to_csv(f"{name}.csv", index=False)
+
 #runTestVarN("data1")
-timeBuildNaiveAndMcCreightSameChar("data5", 10**5, 10**4, 10**4, 1)
-timeSearchVarM("data6", 1000, 1, 1, (1000, 10000, 100000), alphabet, 1)
+#timeBuildNaiveAndMcCreightSameChar("data5", 10**5, 10**4, 10**4, 1)
+timeSearchVarM("data6", 100000, 10, 10, (100000, 1000000, 10000000), alphabet, 1)
 #timeVarNShowAll("data3", 1, 3, 10**6, 10**5, 10**5, 10, 100, 1000)

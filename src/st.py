@@ -32,7 +32,7 @@ def constructTreeMcCreight(x: str, verbose=False):
     if verbose:
         print("Going into loop with root", root.prettyString(), sep="\n")
 
-    def fastScan(node: linkedNode, stringRange, verbose) -> linkedNode:
+    def fastScan(node: linkedNode, stringRange, suffixStart, verbose) -> linkedNode:
         if verbose:
             print("fastScan node", node.prettyString(), sep="\n")
         edgeStart, edgeEnd = stringRange
@@ -41,26 +41,48 @@ def constructTreeMcCreight(x: str, verbose=False):
         else:
             edgeStart -= 1
         index = edgeStart
+        prevIndex = index
+        char = x[index]
         while index < edgeEnd:
-            node = node.childrenOrLabel[x[index]]
+            prevIndex = index
+            char = x[index]
+            node = node.childrenOrLabel[char]
             index += 1
             l1, l2 = node.stringRange
-            index += l2-l1 
+            index += l2-l1
+        if index > edgeEnd:
+            #split on node 
+            newLeaf = linkedNode((l2-prevIndex+2, n), suffixStart)
+            l1, l2 = node.stringRange
+            splitNode = linkedNode((l1,edgeEnd), {x[l2-prevIndex+1] : newLeaf, x[edgeEnd] : node}, node.parent)
+            newLeaf.parent = splitNode
+            node.stringRange = (edgeEnd+1, l2)
+            node.parent.childrenOrLabel[char] = splitNode
+            node.parent = splitNode
+
+            return splitNode, True
+
         if verbose:
             print("fastScan returns the node", node.prettyString(), sep="\n")
-        return node 
+        return node, False
 
     
     suffixIndex = 1
     for suffixStart in range(1, n):
+        madeNewNode = False
         if verbose:
             print("Run with suffixStart:", suffixStart)
-        if suffixIndex <= suffixStart or lastHead.parent.suffixLink == root:
+        if suffixIndex <= suffixStart or lastHead.parent == root:
             node = root
             suffixIndex = suffixStart
         else: 
-            node = fastScan(lastHead.parent.suffixLink, lastHead.stringRange, verbose)
+            node, madeNewNode = fastScan(lastHead.parent.suffixLink, lastHead.stringRange, suffixStart, verbose)
         lastHead.suffixLink = node 
+        if madeNewNode:
+            lastHead = node
+            _, end = node.stringRange
+            suffixIndex = end
+            continue
 
         char = x[suffixIndex]
 
@@ -203,6 +225,12 @@ def searchNaive(x, p):
         return 
     t = constructTreeNaive(x)
     yield from searchTree(t, p, x+"$")
+
+
+constructTreeMcCreight("atctatc", True)
+print()
+print(constructTreeNaive("atctatc").prettyString())
+
 
 def searchTree(tree: Node, p: str, x: str):
     node = tree

@@ -56,8 +56,9 @@ def leafExists(y: str, tree: Node, label: int, x: str) -> bool:
         node = node.childrenOrLabel[y[i]]
         i += 1 
     startEdge, endEdge = node.stringRange
-    assert y[i:i+endEdge-startEdge] == x[startEdge:endEdge], f"{y[i:i+endEdge-startEdge]} != {x[startEdge:endEdge]}"
+    assert y[i:i+endEdge-startEdge] == x[startEdge:endEdge], f"{y[i:i+endEdge-startEdge]} != {x[startEdge:endEdge]}, {y}[{i}:{i+endEdge-startEdge}] != {x}[{startEdge}:{endEdge}]"
     assert node.childrenOrLabel == label, f"Got label {node.childrenOrLabel}, not {label}"
+
 
 def isValidTree(x: str, tree: Node) -> bool:
     x += "$"
@@ -69,7 +70,7 @@ def isValidTree(x: str, tree: Node) -> bool:
         leafExists(x[i:], tree, i, x)
     return True
 
-def setSeed(seed=None):
+def setSeed(seed=753):
     if seed == None:
         seed = r.randint(0,1000)
     with open("seed.txt", "a") as f:

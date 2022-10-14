@@ -226,12 +226,6 @@ def searchNaive(x, p):
     t = constructTreeNaive(x)
     yield from searchTree(t, p, x+"$")
 
-
-constructTreeMcCreight("atctatc", True)
-print()
-print(constructTreeNaive("atctatc").prettyString())
-
-
 def searchTree(tree: Node, p: str, x: str):
     node = tree
     # find pattern node

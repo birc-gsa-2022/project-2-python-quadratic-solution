@@ -6,6 +6,15 @@ from tree import Node, linkedNode
 import random as r
 import lin 
 
+genAlphabet = "acgt"
+
+def setSeed(seed=None):
+    if seed == None:
+        seed = r.randint(0,1000)
+    with open("seed.txt", "a") as f:
+        f.write(f"Last seed for search was {seed} \n" )
+    r.seed(seed)
+
 def leafExists(y: str, tree: Node, label: int, x: str) -> bool:
     node = tree.childrenOrLabel[y[0]]
     i = 1
@@ -30,14 +39,6 @@ def isValidTree(x: str, tree: Node) -> bool:
         leafExists(x[i:], tree, i, x)
     return True
 
-def setSeed(seed=None):
-    if seed == None:
-        seed = r.randint(0,1000)
-    with open("seed.txt", "a") as f:
-        f.write(f"Last seed for construction was {seed} \n" )
-    r.seed(seed)
-
-genAlphabet = "acgt" 
 
 def test_constructTreeMcCreightChildren():
     res = st.constructTreeMcCreight("")
@@ -105,14 +106,7 @@ def test_search():
     assert res == [0,1,2,3,4,5], "Not correct for x=aaaaaa and p=a"
     assert resNaive == [0,1,2,3,4,5], "Not correct for x=aaaaaa and p=a"
 
-genAlphabet = "acgt"
 
-def setSeed(seed=None):
-    if seed == None:
-        seed = r.randint(0,1000)
-    with open("seed.txt", "a") as f:
-        f.write(f"Last seed for search was {seed} \n" )
-    r.seed(seed)
 
 
 def compare_res(x, p, *algorithms):

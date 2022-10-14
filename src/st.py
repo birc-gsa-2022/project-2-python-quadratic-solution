@@ -32,33 +32,36 @@ def constructTreeMcCreight(x: str, verbose=False):
     if verbose:
         print("Going into loop with root", root.prettyString(), sep="\n")
 
-    def fastScan(node: linkedNode, stringRange, suffixStart, verbose) -> linkedNode:
+    def fastScan(node: linkedNode, stringRange, suffixStart, suffixIndex, verbose) -> linkedNode:
+        edgeStart, edgeEnd = stringRange
         if verbose:
             print("fastScan node", node.prettyString(), sep="\n")
-        edgeStart, edgeEnd = stringRange
+            print("with z=", x[edgeStart-1:edgeEnd], sep="")
         if edgeStart <= 1:
             edgeStart = 1
         else:
             edgeStart -= 1
         index = edgeStart
-        prevIndex = index
         char = x[index]
         while index < edgeEnd:
-            prevIndex = index
             char = x[index]
             node = node.childrenOrLabel[char]
             index += 1
             l1, l2 = node.stringRange
             index += l2-l1
         if index > edgeEnd:
-            #split on node 
-            newLeaf = linkedNode((l2-prevIndex+2, n), suffixStart)
+            if verbose:
+                print("Need to split on the edge to node", node.prettyString(), sep="\n")
+            newLeaf = linkedNode((suffixIndex+1, n), suffixStart)
             l1, l2 = node.stringRange
-            splitNode = linkedNode((l1,edgeEnd), {x[l2-prevIndex+1] : newLeaf, x[edgeEnd] : node}, node.parent)
+            splitNode = linkedNode((l1,edgeEnd), {x[suffixIndex] : newLeaf, x[edgeEnd] : node}, node.parent)
             newLeaf.parent = splitNode
             node.stringRange = (edgeEnd+1, l2)
             node.parent.childrenOrLabel[char] = splitNode
             node.parent = splitNode
+            if verbose:
+                print("fastScan returns the splitnode", splitNode.prettyString(), sep="\n")
+                print("root after fastScan", root.prettyString(), sep="\n")
 
             return splitNode, True
 
@@ -71,26 +74,48 @@ def constructTreeMcCreight(x: str, verbose=False):
     for suffixStart in range(1, n):
         madeNewNode = False
         if verbose:
-            print("Run with suffixStart:", suffixStart)
-        if suffixIndex <= suffixStart or lastHead.parent == root:
+            print("Run with suffixStart", suffixStart, "and string", x[suffixStart:])
+            print("SuffixIndex before", suffixIndex)
+        if lastHead.parent == root:
             node = root
             suffixIndex = suffixStart
+            char = x[suffixIndex]
+            if char in node.childrenOrLabel:
+                checknode = node.childrenOrLabel[char]
+                a, b = checknode.stringRange
+                if a==b:
+                    node = checknode
+                    suffixIndex += 1
+            else:
+                #new leaf
+                newLeaf = linkedNode((suffixIndex+1, n), suffixStart, root)
+                root.childrenOrLabel[char] = newLeaf
+                node = root
+            lastHead.suffixLink = node 
         else: 
-            node, madeNewNode = fastScan(lastHead.parent.suffixLink, lastHead.stringRange, suffixStart, verbose)
-        lastHead.suffixLink = node 
-        if madeNewNode:
-            lastHead = node
+            if verbose:
+                print("lastHead", lastHead.prettyString(), sep="\n")
+                print("parent", lastHead.parent.prettyString(), sep="\n")
+                print("link", lastHead.parent.suffixLink.prettyString(), sep="\n")
+            node, madeNewNode = fastScan(lastHead.parent.suffixLink, lastHead.stringRange, suffixStart, suffixIndex, verbose)
+            lastHead.suffixLink = node 
             _, end = node.stringRange
             suffixIndex = end
+            if madeNewNode:
+                lastHead = node
+                continue
+        if suffixIndex==n:
             continue
-
         char = x[suffixIndex]
 
         while True:
             edgestart, edgeend = node.stringRange
-            prevSuffixIndex = suffixIndex
-                
+            # prevSuffixIndex = suffixIndex
+            
+            i = 0
             for i in range(min(edgeend-edgestart, n-suffixIndex+1)):
+                if suffixIndex == edgestart+i:
+                    raise ValueError
                 if x[suffixIndex] != x[edgestart+i]:
                     # Split node 
                     newLeaf = linkedNode((suffixIndex+1, n), suffixStart)
@@ -102,31 +127,41 @@ def constructTreeMcCreight(x: str, verbose=False):
                     lastHead = splitNode
                     if verbose:
                         print("Insert leaf by mismatch. Root is", root.prettyString(), sep="\n")
+                    print("break")
                     break
                 suffixIndex += 1 
             else: #Did not mismatch
-                if suffixIndex == n:
-                    # insert leaf with $       
-                    newLeaf = linkedNode((n, n), suffixStart)
-                    if node.isInnerNode():
-                        newLeaf.parent = node
-                        node.childrenOrLabel["$"] = newLeaf
-                        lastHead = node
-                    else: 
-                        splitNode = linkedNode((suffixIndex, suffixIndex), {"$" : newLeaf, x[edgestart] : node}, node.parent)
-                        node.stringRange = (edgestart-1, edgeend)
-                        node.parent = splitNode
-                        lastHead = splitNode
-                    suffixIndex = prevSuffixIndex
-                    break
+                #FIXME should not happen
+                # if suffixIndex == n: 
+                #     # insert leaf with $       
+                #     if i == edgeend-edgestart: #Did go all the way in edge
+                #         if node.isInnerNode():
+                #             newLeaf = linkedNode((n, n), suffixStart)
+                #             newLeaf.parent = node
+                #             node.childrenOrLabel["$"] = newLeaf
+                #             lastHead = node
+                #         else:
+                #             raise ValueError
+                #     else: #Stopped on an edge
+                #         splitNode = linkedNode((suffixIndex, suffixIndex), {"$" : newLeaf, x[edgestart] : node}, node.parent)
+                #         node.stringRange = (edgestart-1, edgeend)
+                #         node.parent = splitNode
+                #         lastHead = splitNode
+                #         print(lastHead.prettyString())
 
+                #     suffixIndex = prevSuffixIndex
+                #     break
                 char = x[suffixIndex]
                 if verbose:
-                    print("Insert char", char)
+                    print("Got char", char)
                 if char in node.childrenOrLabel:
                     suffixIndex += 1
                     node = node.childrenOrLabel[char]
+                    if verbose:
+                        print("Follow child to node", node.prettyString(), sep="\n")
                 else: #Add new leaf to inner node
+                    if verbose:
+                        print("New leaf")
                     newLeaf = linkedNode((suffixIndex+1, n), suffixStart, node)
                     node.childrenOrLabel[char] = newLeaf
                     if verbose:
@@ -266,4 +301,3 @@ def findLeaves(t: Node | None):
 
 if __name__ == '__main__':
     main()
-

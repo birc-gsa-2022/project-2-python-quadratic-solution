@@ -48,9 +48,11 @@ With these different methods of testing the contruction of trees and search, we 
 
 ## Running time
 
-We can see on plots, that it is O(n²), but we want to go to bed now, bye. 
+We can see on plots, that it is O(n²). 
 
-*Describe experiments that verifies that your implementation of `st` uses no more time than O(n) or O(n²) (depending on the algorithm) for constructing the suffix tree and no more than O(m) for searching for a given read in it. Remember to explain your choice of test data. What are “best” and “worst” case inputs?*
+Timing for search was difficult, since it did not take enough time for resonable plots. 
 
-*If you have graphs that show the running time--you probably should have--you can embed them here like we did in the previous project.*
+See more, expecially in the SameChar sheet:
+https://docs.google.com/spreadsheets/d/1--ITwkiXQsnNbwgHv5mrqLbjOMpt0tiulCVNo3HVMwg/edit?usp=sharing
 
+A string of same chars is worst case, since the naive will go down the branches from the root. sum^n i = O(n²)

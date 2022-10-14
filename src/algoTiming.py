@@ -252,5 +252,5 @@ def timeSearchVarMExists(name, maxM, minM, mStep, seqLens, alphabet, numAvgItera
 
 #runTestVarN("data1")
 #timeBuildNaiveAndMcCreightSameChar("data5", 10**5, 10**4, 10**4, 1)
-timeSearchVarM("data6", 100000, 10, 10, (100000, 1000000, 10000000), alphabet, 1)
+#timeSearchVarM("data6", 100000, 10, 10, (100000, 1000000, 10000000), alphabet, 1)
 #timeVarNShowAll("data3", 1, 3, 10**6, 10**5, 10**5, 10, 100, 1000)

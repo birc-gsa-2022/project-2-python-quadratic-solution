@@ -2,7 +2,7 @@
 # all files that start with test_*.py and run all functions with
 # names that start with test_
 import st
-from tree import Node, linkedNode
+from tree import Node
 import random as r
 
 def test_constructTreeNaiveChildren():
@@ -45,7 +45,6 @@ def test_constructTreeNaiveSplit():
 
     assert res == root, "Not same tree for aa"
 
-
 def leafExists(y: str, tree: Node, label: int, x: str) -> bool:
     node = tree.childrenOrLabel[y[0]]
     i = 1
@@ -70,7 +69,7 @@ def isValidTree(x: str, tree: Node) -> bool:
         leafExists(x[i:], tree, i, x)
     return True
 
-def setSeed(seed=753):
+def setSeed(seed=None):
     if seed == None:
         seed = r.randint(0,1000)
     with open("seed.txt", "a") as f:
@@ -86,59 +85,3 @@ def test_random_valid_naive():
         t = st.constructTreeNaive(x)
         isValidTree(x, t)
 
-    
-
-
-
-
-
-def test_constructTreeMcCreightChildren():
-    res = st.constructTreeMcCreight("")
-    leafSen = linkedNode((1,1), 0)
-    root = linkedNode((0,0), {"$" : leafSen})
-    leafSen.parent = root
-    root.parent = root
-    assert res == root, "Not same tree for empty string"
-    
-    res = st.constructTreeMcCreight("a")
-    leafA = linkedNode((1,2), 0)
-    leafSen = linkedNode((2,2), 1)
-    expT = linkedNode((0,0), {"a" : leafA, "$": leafSen})
-    leafA.parent = expT
-    leafSen.parent = expT
-    expT.parent = expT
-    assert res == expT, f"Not same tree for a. Got \n{res.prettyString()} instead of \n{expT.prettyString()}"
-
-    res = st.constructTreeMcCreight("ab")
-    leafAB = linkedNode((1,3), 0) 
-    leafB = linkedNode((2,3), 1) 
-    leafSen = linkedNode((3,3), 2) 
-    leaves = {"a" : leafAB, "b" : leafB, "$" : leafSen}
-    expT = linkedNode((0,0), leaves)
-    assert res == expT, f"Not same tree for ab. Got \n{res.prettyString()} instead of \n{expT.prettyString()}"
-
-
-def test_constructTreeMcCreightSplit():
-    res = st.constructTreeMcCreight("aa")
-    leafAA = linkedNode((2,3), 0) 
-    leafA = linkedNode((3,3), 1) 
-    leafSen = linkedNode((3,3), 2) 
-    nodeA = linkedNode((1,1), {"a": leafAA, "$" : leafA})
-    root = linkedNode((0,0), {"a" : nodeA, "$": leafSen})
-
-    leafAA.parent = leafA.parent = nodeA
-    nodeA.parent = root
-    root.parent = root
-
-    assert res == root, "Not same tree for aa"
-
-
-
-def test_random_valid_McCreight():
-    setSeed()
-    for i in range(500):
-        x= "".join(r.choices(genAlphabet, k=i))
-        t = st.constructTreeMcCreight(x)
-        isValidTree(x, t)
-        t2 = st.constructTreeNaive(x)
-        t.asssertEqualToNode(t2), f"Naive and McCreight gave different trees on string {x}. \n{t.prettyString()}\n{t2.prettyString()}"

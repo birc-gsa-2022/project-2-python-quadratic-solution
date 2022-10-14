@@ -32,13 +32,13 @@ class linkedNode(Node):
     parent: 'linkedNode | None' = field(default=None, compare=False) #Avoid recursive compareson. Not comparing parent is only a problem in special cases that should never happen
     suffixLink: 'linkedNode | None' = field(default=None, compare=False)
 
-    def asssertEqualToNode(self, n: Node):
+    def assertEqualToNode(self, n: Node):
         assert self.stringRange == n.stringRange, "Not same range"
         assert self.isInnerNode() == n.isInnerNode(), "One if leaf, one is inner node"
         if self.isInnerNode():
             for c in self.childrenOrLabel:
-                self.childrenOrLabel[c].asssertEqualToNode(n.childrenOrLabel[c])
+                self.childrenOrLabel[c].assertEqualToNode(n.childrenOrLabel[c])
             for c in n.childrenOrLabel:
-                self.childrenOrLabel[c].asssertEqualToNode(n.childrenOrLabel[c])
+                self.childrenOrLabel[c].assertEqualToNode(n.childrenOrLabel[c])
         else:
             assert self.childrenOrLabel == n.childrenOrLabel, "Not same label"

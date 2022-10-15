@@ -46,7 +46,7 @@ def constructTreeNaive(x: str, verbose=False):
                 print("suffixIndex:", suffixIndex)
             edgestart, edgeend = node.stringRange
                 
-            for i in range(min(edgeend-edgestart, n-suffixIndex+1)):
+            for i in range(edgeend-edgestart):
                 if verbose:
                     print("i", i)
                 if x[suffixIndex] != x[edgestart+i]:
@@ -137,3 +137,4 @@ def findLeaves(t: Node | None):
 
 if __name__ == '__main__':
     main()
+

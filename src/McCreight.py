@@ -19,7 +19,7 @@ def constructTreeMcCreight(x: str, verbose=False):
         if verbose:
             print("fastScan node", node.prettyString(), sep="\n")
             print("with z=", x[edgeStart-1:edgeEnd], sep="")
-        if edgeStart <= 1:
+        if edgeStart <= 1: #TODO needed? 
             edgeStart = 1
         else:
             edgeStart -= 1
@@ -35,10 +35,12 @@ def constructTreeMcCreight(x: str, verbose=False):
             if verbose:
                 print("Need to split on the edge to node", node.prettyString(), sep="\n")
             newLeaf = linkedNode((suffixIndex+1, n), suffixStart)
+            sameBranch = node==lastHead
             l1, l2 = node.stringRange
-            splitNode = linkedNode((l1,edgeEnd), {x[suffixIndex] : newLeaf, x[edgeEnd] : node}, node.parent)
+            assert x[suffixIndex] != x[edgeEnd-sameBranch], f"Added same symbol, {x[edgeEnd]}, with index {suffixIndex} and {edgeEnd}"
+            splitNode = linkedNode((l1,edgeEnd-sameBranch), {x[suffixIndex] : newLeaf, x[edgeEnd-sameBranch] : node}, node.parent)
             newLeaf.parent = splitNode
-            node.stringRange = (edgeEnd+1, l2)
+            node.stringRange = (edgeEnd+(not sameBranch), l2)
             node.parent.childrenOrLabel[char] = splitNode
             node.parent = splitNode
             if verbose:
@@ -57,7 +59,7 @@ def constructTreeMcCreight(x: str, verbose=False):
         madeNewNode = False
         if verbose:
             print("================================================================")
-            print("Run with suffixStart", suffixStart, "and string", x[suffixStart:])
+            print("Run with suffixStart", suffixStart, ", suffixIndex", suffixIndex, ", and string", x[suffixStart:])
         if lastHead == root:
             if verbose:
                 print("lastHead is root, continue with slow scan")
@@ -72,10 +74,11 @@ def constructTreeMcCreight(x: str, verbose=False):
             
             lastHead.suffixLink = node
             _, end = node.stringRange
-            suffixIndex = max(end, suffixStart)
+            suffixIndex = max(end, suffixStart, suffixIndex)
             if verbose:
                 print("Set suffix link of", lastHead.prettyString(), "when fast scanning I to", node.prettyString(), sep="\n")
                 print("set suffixIndex to", suffixIndex)
+                print("root is", root.prettyString(), sep="\n")
         else: 
             if verbose:
                 print("lastHead", lastHead.prettyString(), sep="\n")
@@ -86,7 +89,7 @@ def constructTreeMcCreight(x: str, verbose=False):
                 print("Set suffix link when fast scanning II to", node.prettyString(), sep="\n")
             lastHead.suffixLink = node 
             _, end = node.stringRange
-            suffixIndex = max(end, suffixStart)
+            suffixIndex = max(end, suffixStart, suffixIndex)
         if madeNewNode:
             lastHead = node
             continue
@@ -100,7 +103,7 @@ def constructTreeMcCreight(x: str, verbose=False):
             edgestart, edgeend = node.stringRange
             
             i = 0
-            for i in range(min(edgeend-edgestart, n-suffixIndex+1)):
+            for i in range(edgeend-edgestart):
                 assert suffixIndex != edgestart+i, f"suffixIndex=edgestart+{i}={suffixIndex} for y={x[suffixStart:]} and x={x}"
                 if x[suffixIndex] != x[edgestart+i]:
                     # Split node 
@@ -116,6 +119,7 @@ def constructTreeMcCreight(x: str, verbose=False):
                     break
                 suffixIndex += 1 
             else: #Did not mismatch
+                assert node.isInnerNode(), "Is leaf"
                 assert suffixIndex != n, f"suffixIndex=n for y={x[suffixStart:]} and x={x}"
                 char = x[suffixIndex]
                 if verbose:
@@ -139,5 +143,5 @@ def constructTreeMcCreight(x: str, verbose=False):
         print("Return tree", root.prettyString(), sep="\n")
     return root
 
-#print(constructTreeMcCreight("aaa", True).prettyString())
+#print(constructTreeMcCreight("mississippi", True).prettyString())
 #print(constructTreeMcCreight("cttccc", True).prettyString())

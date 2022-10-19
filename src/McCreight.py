@@ -158,6 +158,8 @@ def constructTreeMcCreight(x: str, verbose=False):
     return root
 
 
+print(constructTreeMcCreight("gccgcgcc", True).prettyString())
+
 #print(constructTreeMcCreight("aaaa", True).prettyString())
 #print(constructTreeMcCreight("ababbab", True).prettyString())
 #print(constructTreeMcCreight("cttccc", True).prettyString())

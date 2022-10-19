@@ -135,6 +135,17 @@ def findLeaves(t: Node | None):
             for c in node.childrenOrLabel.values():
                 stack.append(c)
 
-if __name__ == '__main__':
-    main()
+# if __name__ == '__main__':
+#     main()
 
+x = "gccgcgcc"
+
+tn = constructTreeNaive(x)
+tmc = constructTreeMcCreight(x, True)
+print("-"*100)
+tmc.assertEqualToNode(tn)
+print("correct")
+print(tn.prettyString())
+print()
+print("wrong")
+print(tmc.prettyString())

@@ -33,7 +33,7 @@ class linkedNode(Node):
     suffixLink: 'linkedNode | None' = field(default=None, compare=False)
 
     def assertEqualToNode(self, n: Node):
-        assert self.stringRange == n.stringRange, "Not same range"
+        assert self.stringRange == n.stringRange, f"Not same range. {self.stringRange} and {n.stringRange}"
         assert self.isInnerNode() == n.isInnerNode(), "One if leaf, one is inner node"
         if self.isInnerNode():
             for c in self.childrenOrLabel:

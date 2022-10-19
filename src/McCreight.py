@@ -113,9 +113,10 @@ def constructTreeMcCreight(x: str, verbose=False):
             edgestart, edgeend = node.stringRange
             if verbose:
                 print("edgestart and edgeend are", edgestart, edgeend)
+                print("suffixindex is", suffixIndex)
             
             i = 0
-            for i in range(edgeend-edgestart):
+            for i in range(edgeend-edgestart): #TODO: Is the fast scan node checked twice? 
                 assert suffixIndex != edgestart+i, f"suffixIndex=edgestart+{i}={suffixIndex} for y={x[suffixStart:]} and x={x}"
                 if x[suffixIndex] != x[edgestart+i]:
                     # Split node 
@@ -158,7 +159,7 @@ def constructTreeMcCreight(x: str, verbose=False):
     return root
 
 
-print(constructTreeMcCreight("gccgcgcc", True).prettyString())
+#print(constructTreeMcCreight("gccgcgcc", True).prettyString())
 
 #print(constructTreeMcCreight("aaaa", True).prettyString())
 #print(constructTreeMcCreight("ababbab", True).prettyString())

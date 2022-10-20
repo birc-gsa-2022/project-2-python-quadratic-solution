@@ -15,7 +15,7 @@ def main():
     fastq = p.parseFastq(args.reads)
     for (fastaName, fastaSeq) in fasta:
         for (name,seq) in fastq:
-            for i in searchNaive(fastaSeq, seq):
+            for i in search(fastaSeq, seq):
                 print(name, fastaName, i+1, f'{len(seq)}M', seq, sep="\t")
 
 

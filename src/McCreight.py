@@ -55,7 +55,7 @@ def constructTreeMcCreight(x: str, verbose=False):
 
     suffixIndex = 1
     for suffixStart in range(1, n):
-        madeNewNode = False
+        char = x[suffixIndex] 
         if verbose:
             print("================================================================")
             print("Run with suffixStart", suffixStart, ", suffixIndex", suffixIndex, ", and string", x[suffixStart:])
@@ -64,51 +64,43 @@ def constructTreeMcCreight(x: str, verbose=False):
                 print("lastHead is root, continue with slow scan")
             node = root
             suffixIndex = suffixStart
-
-        elif lastHead.parent == root:
+            char = x[suffixIndex] 
+        else:
+            parentIsRoot = lastHead.parent == root
             if verbose:
-                print("lastHead.parent is root")
                 print("lastHead", lastHead.prettyString(), sep="\n")
+                if parentIsRoot:
+                    print("lastHead.parent is root")
+                else:
+                    print("parent", lastHead.parent.prettyString(), sep="\n")
+                    print("link", lastHead.parent.suffixLink.prettyString(), sep="\n")
             hstart, hend = lastHead.stringRange
-            node, madeNewNode = fastScan(root, (hstart+1, hend), suffixStart, suffixIndex)
-            
+            node, madeNewNode = fastScan(lastHead.parent.suffixLink, (hstart+parentIsRoot, hend), suffixStart, suffixIndex)
             lastHead.suffixLink = node
             _, end = node.stringRange
-            suffixIndex = max(end, suffixStart, suffixIndex)
-            if verbose:
-                print("Set suffix link of", lastHead.prettyString(), "when fast scanning I to", node.prettyString(), sep="\n")
-                print("set suffixIndex to", suffixIndex)
-                print("root is", root.prettyString(), sep="\n")
-        else: 
-            if verbose:
-                print("lastHead", lastHead.prettyString(), sep="\n")
-                print("parent", lastHead.parent.prettyString(), sep="\n")
-                print("link", lastHead.parent.suffixLink.prettyString(), sep="\n")
-            node, madeNewNode = fastScan(lastHead.parent.suffixLink, lastHead.stringRange, suffixStart, suffixIndex)
-            if verbose:
-                print("Set suffix link when fast scanning II to", node.prettyString(), sep="\n")
-            lastHead.suffixLink = node 
-            _, end = node.stringRange
-            suffixIndex = max(end, suffixStart, suffixIndex)
-        if madeNewNode:
-            lastHead = node
-            continue
-        if suffixIndex==n:
-            continue
+            assert max(end, suffixStart, suffixIndex) == suffixIndex, "refactor not working"
+            #suffixIndex = max(end, suffixStart, suffixIndex)
+
+            if madeNewNode:
+                lastHead = node
+                continue
+
+            if suffixIndex==n:
+                continue
         
+            char = x[suffixIndex] 
+            if char not in node.childrenOrLabel:
+                lastHead = node
+                newLeaf = linkedNode((suffixIndex+1, n), suffixStart, node)
+                node.childrenOrLabel[char] = newLeaf
+                if verbose:
+                    print("Insert leaf  by char:", char)
+                    print("Root is now", root.prettyString(), sep="\n")
+                continue
+            node = node.childrenOrLabel[char]
+            suffixIndex += 1
 
         #Slow scan 
-        char = x[suffixIndex] 
-
-        if char not in node.childrenOrLabel:
-            lastHead = node
-            newLeaf = linkedNode((suffixIndex+1, n), suffixStart, node)
-            node.childrenOrLabel[char] = newLeaf
-            if verbose:
-                print("Insert leaf  by char:", char)
-                print("Root is now", root.prettyString(), sep="\n")
-            continue
-                
         while True:
             edgestart, edgeend = node.stringRange
             if verbose:
@@ -116,7 +108,7 @@ def constructTreeMcCreight(x: str, verbose=False):
                 print("suffixindex is", suffixIndex)
             
             i = 0
-            for i in range(edgeend-edgestart): #TODO: Is the fast scan node checked twice? 
+            for i in range(edgeend-edgestart): 
                 assert suffixIndex != edgestart+i, f"suffixIndex=edgestart+{i}={suffixIndex} for y={x[suffixStart:]} and x={x}"
                 if x[suffixIndex] != x[edgestart+i]:
                     # Split node 
@@ -157,10 +149,3 @@ def constructTreeMcCreight(x: str, verbose=False):
     if verbose:
         print("Return tree", root.prettyString(), sep="\n")
     return root
-
-
-#print(constructTreeMcCreight("gccgcgcc", True).prettyString())
-
-#print(constructTreeMcCreight("aaaa", True).prettyString())
-#print(constructTreeMcCreight("ababbab", True).prettyString())
-#print(constructTreeMcCreight("cttccc", True).prettyString())

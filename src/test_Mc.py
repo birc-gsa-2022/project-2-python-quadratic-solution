@@ -83,8 +83,8 @@ def test_constructTreeMcCreightSplit():
 
 def test_random_valid_McCreight():
     setSeed()
-    for i in range(500):
-        for _ in range(100):
+    for i in range(200):
+        for _ in range(50):
             x= "".join(r.choices(genAlphabet, k=i))
             t = st.constructTreeMcCreight(x)
             isValidTree(x, t)
@@ -92,7 +92,7 @@ def test_random_valid_McCreight():
             t.assertEqualToNode(t2), f"Naive and McCreight gave different trees on string {x}. \n{t.prettyString()}\n{t2.prettyString()}"
 
 
-def test_search():
+def test_search1():
     res = list(st.search("a", "a"))
     resNaive = list(st.searchNaive("a", "a"))
     assert res == [0], "Not correct for x=a and p=a"
@@ -142,7 +142,7 @@ def test_random_same():
             pat = "".join(r.choices(genAlphabet, k=j))
             compare_res(x, pat, st.search, st.searchNaive, lin.kmp2)
 
-def test_search():
+def test_search2():
     x = ["aaaaa", "", "aaabc","abc","a b c", "abababbababa", "Genome", "abxabxabx", "abxabdabx", "bcagjkdasbca", "mississippi"]
     p = ["aa", "","bc", "abcd", "b ", "ba", "good grades", "abc", "abx", "a", "iss"]
     expected = [[0,1,2,3],[],[3],[],[2],[1,3,6,8,10], [], [],[0,6],[2,7,11], [1,4]]
@@ -154,3 +154,4 @@ def test_search():
         resNaive.sort()
         assert resMc == expected[i]
         assert resMc == resNaive
+

@@ -10,9 +10,9 @@ class Clock:
         endtime = time.perf_counter()
         return endtime-starttime
 
-    def getAlgorithmTimeAndResult(self, algorithm, args):
+    def getAlgorithmTimeAndResult(self, algorithm, *args):
         starttime = time.perf_counter()
-        res = algorithm(args) 
+        res = algorithm(*args) 
         endtime = time.perf_counter()
         return endtime-starttime, res 
 

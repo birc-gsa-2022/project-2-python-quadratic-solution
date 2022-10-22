@@ -1,7 +1,6 @@
 import argparse
 from tree import Node, linkedNode
 import parser as p
-import McCreight as mc
 
 
 def main():
@@ -20,14 +19,99 @@ def main():
 
 
 
-def constructTreeMcCreight(x: str, verbose=False):
-    return mc.constructTreeMcCreight(x, verbose)
-
-def constructTreeNaive(x: str, verbose=False):
+def constructTreeMcCreight(x: str):
     x += "$"
     n = len(x)
-    if verbose:
-        print("x:", x)
+
+    firstLeaf = linkedNode((1, n), 0)
+    root = linkedNode((0,0), {x[0] : firstLeaf})
+    root.parent = root.suffixLink = root
+    firstLeaf.parent = root
+    lastHead = root
+    
+    def fastScan(node: linkedNode, stringRange: tuple[int, int], suffixStart: int, suffixIndex: int) -> tuple[linkedNode, bool]:
+        fastEdgeStart, fastEdgeEnd = stringRange
+        while True:
+            if fastEdgeStart-1 == fastEdgeEnd:
+                return node, False
+            char = x[fastEdgeStart-1]
+            node = node.childrenOrLabel[char]
+            l1, l2 = node.stringRange
+            curEdgeLen = l2-l1
+            nextFastEdgeStart = fastEdgeStart+curEdgeLen+1
+            if nextFastEdgeStart-1 > fastEdgeEnd:
+                #split on this edge
+                newLeaf = linkedNode((suffixIndex+1, n), suffixStart)
+
+                splitIndex = l1 + fastEdgeEnd - fastEdgeStart
+                splitNode = linkedNode((l1,splitIndex), {x[suffixIndex] : newLeaf, x[splitIndex] : node}, node.parent)
+                newLeaf.parent = splitNode
+                node.stringRange = (splitIndex+1, l2)
+                node.parent.childrenOrLabel[char] = splitNode
+                node.parent = splitNode
+
+                return splitNode, True
+            fastEdgeStart = nextFastEdgeStart
+
+    suffixIndex = 1
+    for suffixStart in range(1, n):
+        if lastHead == root:
+            node = root
+            suffixIndex = suffixStart
+            char = x[suffixIndex]
+        else:
+            parentIsRoot = lastHead.parent == root
+            hstart, hend = lastHead.stringRange
+            node, madeNewNode = fastScan(lastHead.parent.suffixLink, (hstart+parentIsRoot, hend), suffixStart, suffixIndex)
+            lastHead.suffixLink = node
+
+            if madeNewNode:
+                lastHead = node
+                continue
+        
+            char = x[suffixIndex] 
+            if char not in node.childrenOrLabel:
+                lastHead = node
+                newLeaf = linkedNode((suffixIndex+1, n), suffixStart, node)
+                node.childrenOrLabel[char] = newLeaf
+                continue
+            node = node.childrenOrLabel[char]
+            suffixIndex += 1
+
+        #Slow scan 
+        while True:
+            edgestart, edgeend = node.stringRange
+            
+            i = 0
+            for i in range(edgeend-edgestart): 
+                if x[suffixIndex] != x[edgestart+i]:
+                    # Split node 
+                    newLeaf = linkedNode((suffixIndex+1, n), suffixStart)
+                    splitNode = linkedNode((edgestart,edgestart+i), {x[suffixIndex] : newLeaf, x[edgestart+i] : node}, node.parent)
+                    newLeaf.parent = splitNode             
+                    node.stringRange = (edgestart+i+1, edgeend)
+                    node.parent.childrenOrLabel[char] = splitNode
+                    node.parent = splitNode
+                    lastHead = splitNode
+                    break
+                suffixIndex += 1 
+            else: #Did not mismatch
+                char = x[suffixIndex]
+                if char in node.childrenOrLabel:
+                    suffixIndex += 1
+                    node = node.childrenOrLabel[char]
+                else: #Add new leaf to inner node
+                    newLeaf = linkedNode((suffixIndex+1, n), suffixStart, node)
+                    node.childrenOrLabel[char] = newLeaf
+                    lastHead = node
+                    break
+                continue
+            break
+    return root
+
+def constructTreeNaive(x: str):
+    x += "$"
+    n = len(x)
 
     firstLeaf = Node((1, n), 0)
     root = Node((0,0), {x[0] : firstLeaf})
@@ -40,18 +124,10 @@ def constructTreeNaive(x: str, verbose=False):
         char = x[suffixIndex]
 
         while True:
-            if verbose:
-                print("Current root:\n", root.prettyString(), "\n")
-                print("Current subtree:\n", node.prettyString())
-                print("suffixIndex:", suffixIndex)
             edgestart, edgeend = node.stringRange
                 
             for i in range(edgeend-edgestart):
-                if verbose:
-                    print("i", i)
                 if x[suffixIndex] != x[edgestart+i]:
-                    if verbose:
-                        print("Mismatch")
                     # Split node 
                     newLeaf = Node((suffixIndex+1, n), suffixStart)
                     splitNode = Node((edgestart,edgestart+i), {x[suffixIndex] : newLeaf, x[edgestart+i] : node}, node.parent)
@@ -63,26 +139,15 @@ def constructTreeNaive(x: str, verbose=False):
                 suffixIndex += 1 
             else: #Did not mismatch
                 char = x[suffixIndex]
-                if node.isInnerNode():
-                    if verbose:
-                        print("Inner node")
-                    if char in node.childrenOrLabel:
-                        if verbose:
-                            print("Follow child")
-                        suffixIndex += 1
-                        node = node.childrenOrLabel[char]
-                    else: #Add new leaf to inner node
-                        newLeaf = Node((suffixIndex+1, n), suffixStart, node)
-                        node.childrenOrLabel[char] = newLeaf
-                        break
-                else:
-                    if verbose:
-                        print("Is leaf")
-                    raise ValueError 
+                if char in node.childrenOrLabel:
+                    suffixIndex += 1
+                    node = node.childrenOrLabel[char]
+                else: #Add new leaf to inner node
+                    newLeaf = Node((suffixIndex+1, n), suffixStart, node)
+                    node.childrenOrLabel[char] = newLeaf
+                    break
                 continue
             break
-    if verbose:
-        print("Returning tree:\n", root.prettyString(), "\n")
     return root
 
 def search(x, p):

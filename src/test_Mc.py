@@ -83,8 +83,8 @@ def test_constructTreeMcCreightSplit():
 
 def test_random_valid_McCreight():
     setSeed()
-    for i in range(200):
-        for _ in range(50):
+    for i in range(100):
+        for _ in range(10):
             x= "".join(r.choices(genAlphabet, k=i))
             t = st.constructTreeMcCreight(x)
             isValidTree(x, t)

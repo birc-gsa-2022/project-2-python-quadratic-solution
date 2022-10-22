@@ -13,19 +13,69 @@ Implement the tool `st` that does exact pattern matching using a suffix tree. Te
 
 # Report
 
-## Specify if you have used a linear time or quadratic time algorithm.
+## Implementation
+We implemented both the naive quadratic time algorithm and McCreight’s linear time algorithm. 
 
-## Insights you may have had while implementing and comparing the algorithms.
+## Insights
+Indecies are again your enemy. 
+
+Pretty printing is very much needed for nested classes like trees. 
+
+Using the verbose argument is nice, since it makes it easy to switch between whether to print or not. 
+
+Invariants of functions are important 
+
 
 ## Problems encountered if any.
 
+For the naive, we had problems with splitting edges/nodes. This was solved by pen and paper, going sytematicly through cases, and using pretty printing. 
+
+Initially we missed an edge case for McCreight’s algorithm, which resulted in it having the same worst-case running time as the naive. 
+
+McCreight’s algorithm was difficult to get right, mostly since the indecies where difficult. 
+
+The switch from a group of two to a group of one, changed the work process. 
+
 ## Correctness
 
-*Describe experiments that verifies the correctness of your implementations.*
+### Building the tree
+We started by using small examples, which could be done by hand and verified. 
+
+We then used random examples and tested whether the output of the algorithms gave a 'valid' tree. A 'valid' tree might not be the correct one, but it contains all the expected leaves.
+
+The resulting trees of the naive and McCreight’s algorithm were then compared for random exampels. They gave the same trees, just of different types, since one has suffix links.
+
+### Search 
+
+Likewise we first used some known examples for verifying the implementation of search. 
+
+We then compared the results of the search algorithm on the naive and McCreight trees for random strings with the results from the kmp implementation from the last handin. 
+
+### Conclusion of correctness
+
+With these different methods of testing the contruction of trees and search, we are confident, the trees construction for the naive algorithm, McCreight’s algorithm, and search are correct. 
 
 ## Running time
 
-*Describe experiments that verifies that your implementation of `st` uses no more time than O(n) or O(n²) (depending on the algorithm) for constructing the suffix tree and no more than O(m) for searching for a given read in it. Remember to explain your choice of test data. What are “best” and “worst” case inputs?*
+For naive the worst case as a string of same chars, since the naive will go down the branches from the root. sum^n i = O(n²)
 
-*If you have graphs that show the running time--you probably should have--you can embed them here like we did in the previous project.*
+We can see on plots below, that the naive is O(n²) and McCreight is O(n) when running on strings of the same char. 
 
+![](figs/buildSameCharTime.png)
+
+![](figs/buildSameCharNaiveTimeDivO.png)
+
+![](figs/buildSameCharMcCreightTimeDivO.png)
+
+
+The timing of search is done on random strings x with random substrings of x as the pattern searched. 
+
+The size of the output, z, is 1 for most of the test, so the results are split into those where z>1 and those where z=1.
+
+
+![](figs/varZTime.png)
+
+![](figs/zIs1.png)
+
+
+From the plots and the logic of the implementation, the running time is probable to be something like O(m+z). O(m) to find the inner node which contains all the leaves and O(z) to output the leaves. O(z) is independent of the size of the tree, since the leaves can pay the whole subtree. 
